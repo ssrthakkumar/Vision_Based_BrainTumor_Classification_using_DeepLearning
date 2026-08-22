@@ -34,6 +34,17 @@ repo_url = f"https://{username}:{token}@github.com/ssrthakkumar/Vision_Based_Bra
 **Never** hardcode your token directly in a cell without Secrets — if you 
 accidentally push that cell, your token leaks publicly.
 
+## Notebooks — everyone works in their own
+
+There is **no shared notebook**. Each person clones the repo into their own 
+personal Colab notebook — this is your private scratch space for testing, 
+experimenting, and failed attempts. **Never push your personal notebook to 
+GitHub.**
+
+`.ipynb` files also cause messy, unreadable git conflicts if multiple people 
+edit the same one — another reason to keep notebooks personal and only 
+share clean code (see below).
+
 ## Daily workflow
 
 ### 1. Create your own branch (do this once per feature you're working on)
@@ -54,7 +65,7 @@ This pulls in anything teammates already added, so you're not working on
 outdated code.
 
 ### 3. Do your work
-- Code, experiment, whatever your task is
+- Code, experiment, whatever your task is — freely, in your own notebook
 
 ### 4. Push your progress
 ```bash
@@ -68,15 +79,40 @@ Tell [repo owner] — they'll review and merge your branch into `main` via a
 Pull Request on GitHub (Compare & pull request button appears automatically 
 after you push a new branch).
 
-## Notebook collaboration (important!)
+## Working with .py files (the only thing that's actually shared)
 
-`.ipynb` files cause messy git conflicts when multiple people edit the same 
-one simultaneously. So:
+Once something works in your personal notebook, move it into a proper 
+script file so teammates can reuse it without seeing your experimentation mess.
 
-- **For live/simultaneous work**: use the shared Google Drive notebook link 
-  [paste link here] — this works like Google Docs, real-time, no git needed
-- **For git**: only push a notebook once it's in a stable, working state 
-  (end of your work session, feature complete) — not mid-edit
+### Creating/updating a .py file (in Colab)
+Use the `%%writefile` magic command as the FIRST line of a cell:
+
+```python
+%%writefile src/your_filename.py
+# your clean, working code goes here
+```
+
+Running this cell writes/overwrites the file inside your cloned repo folder. 
+Then push it normally:
+```bash
+!git add src/your_filename.py
+!git commit -m "add/update model building function"
+!git push origin your-branch-name
+```
+
+### Using a teammate's .py file
+```python
+import sys
+sys.path.append('/content/Vision_Based_BrainTumor_Classification_using_DeepLearning')
+from src.your_filename import your_function_name
+```
+(Make sure you've `git pull`ed first so you have their latest version)
+
+### Suggested src/ structure
+- `src/data_loader.py` — dataset loading, preprocessing, augmentation
+- `src/model.py` — model architecture definitions
+- `src/train.py` — training loop / fit calls
+- `src/evaluate.py` — metrics, confusion matrix, evaluation code
 
 ## Journal
 Each person adds their own daily log under `journal/` (e.g., `journal/day1_priya.md`) 
